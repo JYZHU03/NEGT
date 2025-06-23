@@ -149,11 +149,12 @@ class FNNDataset(InMemoryDataset):
 		self.name = name
 		self.root = root
 		self.feature = feature
-		self.percentage_feature = 0.1 #0.2 F； 0.1G
+		self.percentage_feature = 0.2 #0.2 F； 0.1G
 		self.percentage_edge = 0.2
 		super(FNNDataset, self).__init__(root, transform, pre_transform, pre_filter)
 		if not empty:
 			self.data, self.node_graph_id, self.train_idx, self.val_idx, self.test_idx = torch.load(self.processed_paths[0])
+			self.data = self._remove_edges(self.data, self.percentage_edge)  ##这个用于研究鲁棒性（随机删除部分边）实验
 			self.data, self.slices = split(self.data, self.node_graph_id)
 			self.data = self._inject_gaussian_noise(self.data)  ##这个用于研究鲁棒性（随机给部分节点增加高斯噪音）实验
 
@@ -231,6 +232,37 @@ class FNNDataset(InMemoryDataset):
 		# 注入噪音
 		noise = torch.normal(mean, std, size=(num_noisy_points, data.x.size(1)))
 		data.x[noisy_indices] += noise
+
+		return data
+
+	def _remove_edges(self, data, percentage_edge):
+		"""
+		Randomly remove a ratio of edges from the edge_index.
+		:param edge_index: pyg-style edge_index (2 x num_edges)
+		:param percentage_edge: proportion of edges to remove
+		:return: new edge_index with the edges removed
+		"""
+
+		# Ensure each edge is represented only once
+		edge_index = data.edge_index
+		min_nodes, _ = torch.min(edge_index, dim=0)
+		max_nodes, _ = torch.max(edge_index, dim=0)
+		unique_edges = torch.stack([min_nodes, max_nodes], dim=0)
+
+		# Get the number of unique edges
+		num_edges = unique_edges.shape[1]
+
+		# Randomly select edges to remove
+		indices_to_remove = torch.randperm(num_edges)[:int(percentage_edge * num_edges)]
+		edges_to_remove = unique_edges[:, indices_to_remove]
+
+		# Convert edges to set for fast lookup
+		edges_to_remove_set = {tuple(edge) for edge in edges_to_remove.t().tolist()}
+
+		# Find indices of edges to keep
+		mask = [(tuple(edge.tolist()) not in edges_to_remove_set) and
+				(tuple(edge.tolist()[::-1]) not in edges_to_remove_set) for edge in edge_index.t()]
+		data.edge_index = edge_index[:, mask]
 
 		return data
 
