@@ -1,4 +1,4 @@
-The implementation for the paper "Noise-Filtering Enhanced Graph Transformer for Robust Fake News Detection"
+The implementation for the submitted paper "Noise-Filtering Enhanced Graph Transformer for Robust Fake News Detection"
 ## Installation
 
 We have tested our code on a Linux system equipped with `Python 3.10`, `PyTorch 1.13.1`, `PyG 2.2.0` and `CUDA 11.7`.
