@@ -1,4 +1,4 @@
-The implementation for the paper "Propagation Structure-aware Graph Transformer for Robust and Interpretable Fake News Detection"
+The implementation for the paper "Noise-Filtering Enhanced Graph Transformer for Robust Fake News Detection"
 ## Installation
 
 We have tested our code on a Linux system equipped with `Python 3.10`, `PyTorch 1.13.1`, `PyG 2.2.0` and `CUDA 11.7`.
@@ -12,12 +12,12 @@ After downloading the data, one can place it in the `data` directory.
 ## Run Examples
 ```
 cd gnn_model
-python PSGT
+python NEGT
 ```
 
 ## Citation
 
-If you find this work useful, please cite our KDD 2024 paper:
+If you find this work useful, please cite our preliminary version (KDD2024) of this wrok:
 ```bibtex
 @inproceedings{zhu2024propagation,
   title={Propagation Structure-Aware Graph Transformer for Robust and Interpretable Fake News Detection},
