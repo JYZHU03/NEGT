@@ -154,9 +154,9 @@ class FNNDataset(InMemoryDataset):
 		super(FNNDataset, self).__init__(root, transform, pre_transform, pre_filter)
 		if not empty:
 			self.data, self.node_graph_id, self.train_idx, self.val_idx, self.test_idx = torch.load(self.processed_paths[0])
-			self.data = self._remove_edges(self.data, self.percentage_edge)  ##这个用于研究鲁棒性（随机删除部分边）实验
+			self.data = self._remove_edges(self.data, self.percentage_edge)
 			self.data, self.slices = split(self.data, self.node_graph_id)
-			self.data = self._inject_gaussian_noise(self.data)  ##这个用于研究鲁棒性（随机给部分节点增加高斯噪音）实验
+			self.data = self._inject_gaussian_noise(self.data)
 
 
 	@property
@@ -219,15 +219,12 @@ class FNNDataset(InMemoryDataset):
 		return '{}({})'.format(self.name, len(self))
 
 	def _inject_gaussian_noise(self, data):
-		# 计算要注入噪音的数据点数量
 		num_noisy_points = int(self.percentage_feature * data.x.size(0))
 
-		# 随机选择20%的数据点
 		noisy_indices = torch.randperm(data.x.size(0))[:num_noisy_points]
 
-		# 高斯噪音的均值和标准差
 		mean = 0
-		std = 0.1  # 你可以根据需要调整这个值
+		std = 0.1
 
 		# 注入噪音
 		noise = torch.normal(mean, std, size=(num_noisy_points, data.x.size(1)))
